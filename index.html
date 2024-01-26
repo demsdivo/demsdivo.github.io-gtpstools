@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cokrdinate count ~Jar</title>
+    <style>
+        canvas {
+            border: 1px solid #072af3;
+        }
+    </style>
+</head>
+<body>
+    <input type="file" id="imageInput" accept="image/*">
+    <canvas id="canvas" width="800" height="600"></canvas>
+    <div>
+        <strong>X:</strong> <span id="xValue">0</span>
+        <strong>Y:</strong> <span id="yValue">0</span>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const xValue = document.getElementById('xValue');
+        const yValue = document.getElementById('yValue');
+        let image;
+
+        document.getElementById('imageInput').addEventListener('change', handleImage);
+
+        function handleImage(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    image = new Image();
+                    image.onload = function () {
+                        drawImageWithGrid();
+                    };
+                    image.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function drawImageWithGrid() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(image, 0, 0);
+            
+            const gridSize = 32;
+            
+            for (let x = 0; x < canvas.width; x += gridSize) {
+                for (let y = 0; y < canvas.height; y += gridSize) {
+                    ctx.strokeRect(x, y, gridSize, gridSize);
+                }
+            }
+        }
+
+        canvas.addEventListener('mousemove', handleMouseMove);
+
+        function handleMouseMove(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            const mouseX = Math.floor((e.clientX - rect.left) * scaleX);
+            const mouseY = Math.floor((e.clientY - rect.top) * scaleY);
+
+            const gridX = Math.floor(mouseX / 32);
+            const gridY = Math.floor(mouseY / 32);
+
+            xValue.textContent = gridX;
+            yValue.textContent = gridY;
+        }
+    </script>
+</body>
+</html>
